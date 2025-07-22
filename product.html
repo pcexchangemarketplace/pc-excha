@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Product Details — PC Exchange</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #f5f5f5;
+      font-family: "Segoe UI", sans-serif;
+    }
+    header, footer {
+      background-color: #0f3460;
+      color: white;
+      padding: 1rem 0;
+      text-align: center;
+    }
+    .navbar-brand, .nav-link {
+      color: #fff !important;
+    }
+    .product-container {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .product-main-img {
+      width: 100%;
+      max-height: 500px;
+      object-fit: contain;
+      border-radius: 12px;
+      background-color: #fff;
+      padding: 1rem;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+    }
+    .thumbnail-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .thumbnail {
+      width: 70px;
+      height: 70px;
+      border-radius: 6px;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border 0.3s ease;
+    }
+    .thumbnail:hover, .thumbnail.active {
+      border: 2px solid #0f3460;
+    }
+    .product-details {
+      flex: 1;
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+    }
+    .product-details h2 {
+      margin-bottom: 1rem;
+    }
+    .product-details h4 {
+      margin-bottom: 1rem;
+    }
+    .info-block p {
+      margin-bottom: 0.75rem;
+    }
+    .seller-profile {
+      display: flex;
+      align-items: center;
+      margin-top: 1rem;
+      gap: 10px;
+    }
+    .seller-profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #0f3460;
+    }
+    .rating span {
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #ccc;
+    }
+    .rating span.hover,
+    .rating span.active {
+      color: #ffc107;
+    }
+    .btn-message, .btn-buy {
+      background-color: #0f3460;
+      color: white;
+      border-radius: 8px;
+      padding: 10px 20px;
+      margin-right: 1rem;
+      border: none;
+    }
+    .btn-message:hover, .btn-buy:hover {
+      background-color: #0d2e52;
+    }
+    @media (max-width: 992px) {
+      .product-container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container">
+        <a class="navbar-brand" href="dashboard.html">PC Exchange</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item"><a class="nav-link" href="listing.html">Create Listing</a></li>
+            <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" id="logout">Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Product Content -->
+  <div class="container py-5">
+    <div id="productContent" class="product-container">
+      <div class="text-center w-100">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2">Loading product details...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="row text-center text-md-start">
+        <div class="col-md-4 mb-3">
+          <h5 class="text-uppercase">PC Exchange Marketplace</h5>
+          <p>India’s trusted PC gear swapping hub.</p>
+        </div>
+        <div class="col-md-4 mb-3">
+          <h5 class="text-uppercase">Quick Links</h5>
+          <ul class="list-unstyled">
+            <li><a href="listing.html" class="text-white">Create Listing</a></li>
+            <li><a href="dashboard.html" class="text-white">Dashboard</a></li>
+            <li><a href="verify.html" class="text-white">Verify Seller</a></li>
+            <li><a href="dispute.html" class="text-white">Disputes</a></li>
+          </ul>
+        </div>
+        <div class="col-md-4 mb-3">
+          <h5 class="text-uppercase">Contact</h5>
+          <p>Email: support@pcexchange.in</p>
+          <p>Phone: +91 98765 43210</p>
+          <p>Location: Nilambur, Kerala</p>
+        </div>
+      </div>
+      <hr class="text-secondary" />
+      <div class="text-center py-2">
+        &copy; 2025 PC Exchange. Built with ❤️ by PC enthusiasts.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Firebase & Page Logic -->
+  <script type="module">
+    import { auth, db } from "./firebaseConfig.js";
+    import { signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import {
+      doc, getDoc, updateDoc
+    } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+    // Logout functionality
+    document.getElementById("logout").addEventListener("click", () => {
+      signOut(auth).then(() => window.location.href = "login.html");
+    });
+
+    // Fetch product ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get("id");
+    const productContent = document.getElementById("productContent");
+
+    async function loadProduct() {
+      const docRef = doc(db, "listings", productId);
+      const snap = await getDoc(docRef);
+
+      if (!snap.exists()) {
+        productContent.innerHTML = `
+          <div class="alert alert-danger w-100 text-center">
+            Product not found!
+          </div>`;
+        return;
+      }
+
+      const data = snap.data();
+      const imageUrls = Array.isArray(data.imageUrls) ? data.imageUrls : [];
+      const mainImage = imageUrls[0] || "https://via.placeholder.com/600x400.png?text=No+Image";
+
+      // Fetch seller data
+      const sellerId = data.sellerId || data.createdBy;
+      let sellerData = {};
+      if (sellerId) {
+        const sellerRef = doc(db, "users", sellerId);
+        const sellerSnap = await getDoc(sellerRef);
+        if (sellerSnap.exists()) sellerData = sellerSnap.data();
+      }
+      const sellerImage = sellerData.profileImage || "https://via.placeholder.com/100.png?text=User";
+      const sellerRating = sellerData.rating || 0;
+      const ratingCount = sellerData.ratingCount || 0;
+
+      // Build star display
+      const starsDisplay = Array.from({ length: 5 }, (_, i) =>
+        `<span class="${i < Math.round(sellerRating) ? 'active' : ''}">★</span>`
+      ).join("");
+
+      // Thumbnails HTML
+      const thumbnailsHTML = imageUrls.map((url, idx) =>
+        `<img src="${url}" class="thumbnail ${idx === 0 ? 'active' : ''}" data-index="${idx}" />`
+      ).join("");
+
+      // Render product details
+      productContent.innerHTML = `
+        <div class="col-lg-6">
+          <img id="mainProductImage" src="${mainImage}" class="product-main-img" />
+          <div class="thumbnail-container">${thumbnailsHTML}</div>
+        </div>
+        <div class="col-lg-6">
+          <div class="product-details">
+            <h2>${data.title}</h2>
+            <h4 class="text-primary fw-bold">₹${data.price}</h4>
+            <div class="info-block">
+              <p><strong>Condition:</strong> ${data.condition || "Used"}</p>
+              <p><strong>Location:</strong> ${data.location}</p>
+              <p><strong>Description:</strong> ${data.description || "No description provided."}</p>
+            </div>
+            <div class="border rounded p-3 mt-3">
+              <div class="seller-profile">
+                <a href="seller.html?id=${sellerId}">
+                  <img src="${sellerImage}" alt="Seller" title="View Seller Store">
+                </a>
+                <a href="seller.html?id=${sellerId}">
+                  <strong>View Seller Store</strong>
+                </a>
+              </div>
+              <div class="mt-2"><strong>Seller Rating:</strong> ${starsDisplay}</div>
+              <div class="rating mt-2" id="ratingStars">
+                ${[1,2,3,4,5].map(i => `<span data-value="${i}">★</span>`).join('')}
+              </div>
+            </div>
+            <div class="mt-4">
+              <button class="btn-message" id="messageBtn">Message Seller</button>
+              <button class="btn-buy" id="buyNowBtn">Buy Now</button>
+            </div>
+          </div>
+        </div>`;
+
+      // Thumbnail click handler
+      document.querySelectorAll(".thumbnail").forEach(thumb => {
+        thumb.addEventListener("click", () => {
+          document.getElementById("mainProductImage").src = thumb.src;
+          document.querySelectorAll(".thumbnail").forEach(t => t.classList.remove("active"));
+          thumb.classList.add("active");
+        });
+      });
+
+      // One-time seller rating
+      const ratingKey = `rated_seller_${sellerId}`;
+      if (!localStorage.getItem(ratingKey)) {
+        const stars = document.querySelectorAll('#ratingStars span');
+        stars.forEach(star => {
+          star.addEventListener('mouseenter', () => highlightStars(star.getAttribute('data-value')));
+          star.addEventListener('mouseleave', () => highlightStars(0));
+          star.addEventListener('click', async () => {
+            const val = parseInt(star.getAttribute('data-value'));
+            const totalRating = sellerRating * ratingCount + val;
+            const newCount = ratingCount + 1;
+            const newAvg = totalRating / newCount;
+            await updateDoc(doc(db, "users", sellerId), { rating: newAvg, ratingCount: newCount });
+            localStorage.setItem(ratingKey, "true");
+            alert(`Thanks for rating the seller ${val} stars.`);
+            loadProduct(); // reload to update display
+          });
+        });
+        function highlightStars(val) {
+          stars.forEach(s => s.classList.toggle("hover", s.getAttribute('data-value') <= val));
+        }
+      } else {
+        document.getElementById("ratingStars").innerHTML = `<em>You already rated this seller.</em>`;
+      }
+
+      // Buy Now redirect
+      document.getElementById("buyNowBtn").addEventListener("click", () => {
+        window.location.href = `checkout.html?id=${productId}`;
+      });
+
+      // Message Seller (placeholder)
+      document.getElementById("messageBtn").addEventListener("click", () => {
+        alert("Messaging feature coming soon!");
+      });
+    }
+
+    // Initialize
+    loadProduct();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
